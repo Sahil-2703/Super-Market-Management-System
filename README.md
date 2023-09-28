@@ -6,7 +6,6 @@ This is supermarket management system developed by Bhavesh(myself). The aim of t
 - Adding products/items to the store.
 - Saving the generated bill.
 - Deleting/Removing the products/items from the store.
-- Feel free to add more features.😉
       
 # Modules :-
 - datetime
@@ -17,7 +16,6 @@ pip install datetime
 ```
 pip install tk
 ```
-- If you have trouble downloading the modules, refer the videos available online.😊
       
 FOLLOW THE FOLLOWING STEPS TO ACCESS THE PROGRAM:-
 
