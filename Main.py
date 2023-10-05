@@ -1,5 +1,5 @@
 # Supermarket management system
-# Author - BHAVESH L and JOHNEY B
+
 
 from tkinter import *
 from tkinter.font import Font
