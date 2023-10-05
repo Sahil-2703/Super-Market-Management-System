@@ -13,28 +13,20 @@ Admin.iconbitmap("./images/Logo.ico")
 Admin.title("Admin")
 
 # Creating Mysql connection
-dbconn = sqlite3.connect("./Database/RSgroceries.db")
+dbconn = sqlite3.connect("./Database/groceries.db")
 
 # Create a cursor to give commands
 cursor = dbconn.cursor()
 
 # Create Tables
 # category Table
-cursor.execute("""CREATE TABLE if not exists category(
-category varchar(100) NOT NULL primary key
-    )
-    """)
-dbconn.commit()
-cursor.execute("""CREATE TABLE if not exists products(
-    product_id int  not null primary key,
-    product_name varchar(100) not null,
-    product_rate int not null,
-    category varchar(100) not null references category(category)
-    )
-    """)
+cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
 dbconn.commit()
 
-cursor.execute("SELECT * FROM products")
+cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
+dbconn.commit()
+
+cursor.execute("SELECT * FROM PRODUCT")
 prod_1 = cursor.fetchall()
 # print(prod_1)
 dbconn.commit()
@@ -120,7 +112,7 @@ def unwanted_cat():
     for rec in category_delete_1:
         values = table.item(rec).get("values")[2]
         categories_avail.append(values)
-    cursor.execute("SELECT category FROM category")
+    cursor.execute("SELECT CATEGORY FROM CATEGORY")
     cat_t = cursor.fetchall()
     all_cat = []
     for i in cat_t:
@@ -131,17 +123,14 @@ def unwanted_cat():
             available_category.append(fin)
         else:
             pass
-    cursor.execute("DROP TABLE category")
+    cursor.execute("DROP TABLE CATEGORY")
     dbconn.commit()
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-       category varchar(100) NOT NULL primary key
-           )
-           """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
     dbconn.commit()
     for last in available_category:
         try:
-            cursor.execute("INSERT INTO category VALUES('{}')".format(last))
+            cursor.execute("INSERT INTO CATEGORY VALUES('{}')".format(last))
             dbconn.commit()
         except sqlite3.IntegrityError:
             pass
@@ -150,17 +139,9 @@ def unwanted_cat():
 # Add to cart
 def add_to_cart():
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-    category varchar(100) NOT NULL primary key
-        )
-        """)
-    cursor.execute("""CREATE TABLE if not exists products(
-        product_id int  not null primary key,
-        product_name varchar(100) not null,
-        product_rate int not null,
-        category varchar(100) not null references category(category)
-        )
-        """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
     dbconn.commit()
     all_rec = table.get_children()
     ids = []
@@ -172,7 +153,7 @@ def add_to_cart():
             if Entry_1.get() != "" and Entry_2.get() != "" and Entry_3.get() != "" and Entry_4.get() != "":
                 n = messagebox.askyesno("Add to Market", "Are you sure you want to add it to the Market?")
                 if n == 1:
-                    cursor.execute("SELECT product_id FROM products")
+                    cursor.execute("SELECT PRODUCT_ID FROM PRODUCT")
                     id_check = cursor.fetchall()
                     id_check_fin = []
                     dbconn.commit()
@@ -180,22 +161,22 @@ def add_to_cart():
                         messagebox.showerror("Error", "Product id already in the market")
                     else:
                         table.insert("", index="end", values=(Entry_4.get(), Entry_3.get(), Entry_1.get(), Entry_2.get()))
-                        cursor.execute("INSERT INTO products VALUES(:product_id, :product_name, :product_rate, :category)",
+                        cursor.execute("INSERT INTO PRODUCT VALUES(:PRODUCT_ID, :PRODUCT_NAME, :PRODUCT_RATE, :CATEGORY)",
                                        {
-                                           "product_id": Entry_4.get(),
-                                           "product_name": Entry_3.get(),
-                                           "product_rate": Entry_2.get(),
-                                           "category": Entry_1.get()
+                                           "PRODUCT_ID": Entry_4.get(),
+                                           "PRODUCT_NAME": Entry_3.get(),
+                                           "PRODUCT_RATE": Entry_2.get(),
+                                           "CATEGORY": Entry_1.get()
                                        }
                                        )
-                        cursor.execute("SELECT category FROM category")
+                        cursor.execute("SELECT CATEGORY FROM CATEGORY")
                         categories_db = cursor.fetchall()
                         categories = []
                         for i in categories_db:
                             categories.append(i[0])
                         if Entry_1.get() not in categories:
-                            cursor.execute("INSERT INTO category VALUES(:category)",
-                                           {"category": Entry_1.get()})
+                            cursor.execute("INSERT INTO CATEGORY VALUES(:CATEGORY)",
+                                           {"CATEGORY": Entry_1.get()})
                             dbconn.commit()
                         else:
                             pass
@@ -219,22 +200,14 @@ def add_to_cart():
 # Update
 def update():
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-        category varchar(100) NOT NULL primary key
-            )
-            """)
-    cursor.execute("""CREATE TABLE if not exists products(
-        product_id int  not null primary key,
-        product_name varchar(100) not null,
-        product_rate int not null,
-        category varchar(100) not null references category(category)
-        )
-        """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
     dbconn.commit()
 
     Button_1.configure(state="active")
     if Entry_1.get() != "" and Entry_2.get() != "" and Entry_3.get() != "" and Entry_4.get() != "":
-        cursor.execute("SELECT product_id FROM products")
+        cursor.execute("SELECT PRODUCT_ID FROM PRODUCT")
         id_check = cursor.fetchall()
         dbconn.commit()
         if (int(Entry_4.get()),) in id_check:
@@ -247,17 +220,17 @@ def update():
                     pass
             table.item(k[0], text="", values=(int(Entry_4.get()) ,Entry_3.get(), Entry_1.get(), Entry_2.get()))
             cursor.execute("""
-            UPDATE products SET product_name = '{}', category = '{}', product_rate = {} WHERE product_id = {}"""
+            UPDATE PRODUCT SET PRODUCT_NAME = '{}', CATEGORY = '{}', PRODUCT_RATE = {} WHERE PRODUCT_ID = {}"""
                            .format(Entry_3.get(), Entry_1.get(), Entry_2.get(), int(Entry_4.get())))
             dbconn.commit()
-            cursor.execute("SELECT category FROM category")
+            cursor.execute("SELECT CATEGORY FROM CATEGORY")
             categories_db = cursor.fetchall()
             categories = []
             for i in categories_db:
                 categories.append(i[0])
             if Entry_1.get() not in categories:
-                cursor.execute("INSERT INTO category VALUES(:category)",
-                               {"category": Entry_1.get()})
+                cursor.execute("INSERT INTO CATEGORY VALUES(:CATEGORY)",
+                               {"CATEGORY": Entry_1.get()})
                 dbconn.commit()
             Entry_1.delete(0, END)
             Entry_2.delete(0, END)
@@ -273,17 +246,9 @@ def update():
 # Clear
 def clear():
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-        category varchar(100) NOT NULL primary key
-            )
-            """)
-    cursor.execute("""CREATE TABLE if not exists products(
-        product_id int  not null primary key,
-        product_name varchar(100) not null,
-        product_rate int not null,
-        category varchar(100) not null references category(category)
-        )
-        """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
     dbconn.commit()
 
     Entry_1.delete(0, END)
@@ -296,17 +261,10 @@ def clear():
 # Select Item
 def select_item():
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-        category varchar(100) NOT NULL primary key
-            )
-            """)
-    cursor.execute("""CREATE TABLE if not exists products(
-        product_id int  not null primary key,
-        product_name varchar(100) not null,
-        product_rate int not null,
-        category varchar(100) not null references category(category)
-        )
-        """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
+
     dbconn.commit()
 
     items_n = table.selection()
@@ -335,17 +293,9 @@ def select_item():
 # Delete item(s)
 def delete_many():
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-        category varchar(100) NOT NULL primary key
-            )
-            """)
-    cursor.execute("""CREATE TABLE if not exists products(
-        product_id int  not null primary key,
-        product_name varchar(100) not null,
-        product_rate int not null,
-        category varchar(100) not null references category(category)
-        )
-        """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
     dbconn.commit()
 
     items_n = table.selection()
@@ -362,7 +312,7 @@ def delete_many():
             for rows_n in items_n:
                 table.delete(rows_n)
             for row in pro_id:
-                cursor.execute("DELETE FROM products WHERE product_id={}".format(row))
+                cursor.execute("DELETE FROM PRODUCT WHERE PRODUCT_ID={}".format(row))
                 dbconn.commit()
             unwanted_cat()
         else:
@@ -371,17 +321,9 @@ def delete_many():
 # Clear All
 def clear_all():
     # Creating table product if not exist
-    cursor.execute("""CREATE TABLE if not exists category(
-       category varchar(100) NOT NULL primary key
-           )
-           """)
-    cursor.execute("""CREATE TABLE if not exists products(
-        product_id int  not null primary key,
-        product_name varchar(100) not null,
-        product_rate int not null,
-        category varchar(100) not null references category(category)
-        )
-        """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
+
+    cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
     dbconn.commit()
 
     if table.get_children() == ():
@@ -391,7 +333,7 @@ def clear_all():
         if n == 1:
             for rows in table.get_children():
                 table.delete(rows)
-            cursor.execute("DROP TABLE products")
+            cursor.execute("DROP TABLE PRODUCT")
             dbconn.commit()
             unwanted_cat()
         else:
@@ -402,7 +344,7 @@ def search_id():
         messagebox.showerror("Error", "Enter ID to search")
     else:
         id = int(Entry_5.get())
-        cursor.execute("SELECT product_id FROM products")
+        cursor.execute("SELECT PRODUCT_ID FROM PRODUCT")
         id_check = cursor.fetchall()
         dbconn.commit()
         all_rows = table.get_children()

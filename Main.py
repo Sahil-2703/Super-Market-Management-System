@@ -10,25 +10,28 @@ import sqlite3
 
 
 # Creating Mysql connection
-dbconn = sqlite3.connect("./Database/RSgroceries.db")
+dbconn = sqlite3.connect("./Database/groceries.db")
 
 # Create a cursor to give commands
 cursor = dbconn.cursor()
 
 # Create Tables
 # category Table
-cursor.execute("""CREATE TABLE if not exists category(
-category varchar(100) NOT NULL primary key
-    )
-    """)
+# cursor.execute("""CREATE TABLE if not exists category(
+# category varchar(100) NOT NULL primary key
+#     )
+#     """)
+
+cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
 dbconn.commit()
-cursor.execute("""CREATE TABLE if not exists products(
-    product_id int  not null primary key,
-    product_name varchar(100) not null,
-    product_rate int not null,
-    category varchar(100) not null references category(category)
-    )
-    """)
+# cursor.execute("""CREATE TABLE if not exists products(
+#     product_id int  not null primary key,
+#     product_name varchar(100) not null,
+#     product_rate int not null,
+#     category varchar(100) not null references category(category)
+#     )
+#     """)
+cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
 dbconn.commit()
 
 products = [
@@ -142,12 +145,12 @@ products = [
 # Add datas
 for data in products:
     try:
-        cursor.execute("INSERT INTO products VALUES(:product_id, :product_name, :product_rate, :category)",
+        cursor.execute("INSERT INTO PRODUCT VALUES(:PRODUCT_ID, :PRODUCT_NAME, :PRODUCT_RATE, :CATEGORY)",
                   {
-                      "product_id": data[0],
-                      "product_name": data[1],
-                      "product_rate": data[2],
-                      "category": data[3]
+                      "PRODUCT_ID": data[0],
+                      "PRODUCT_NAME": data[1],
+                      "PRODUCT_RATE": data[2],
+                      "CATEGORY": data[3]
                   }
                   )
         dbconn.commit()
@@ -173,13 +176,19 @@ category_values = [
 
 for data_1 in category_values:
     try:
-        cursor.execute("INSERT INTO category VALUES(:category)",
-                  {"category": data_1[0]}
+        cursor.execute("INSERT INTO CATEGORY VALUES(:CATEGORY)",
+                  {"CATEGORY": data_1[0]}
                   )
         dbconn.commit()
     except sqlite3.IntegrityError:
         pass
 
+cursor.execute("SELECT * FROM PRODUCT")
+# category_details= cursor.execute("SELECT * FROM CATEGORY")
+all_product = cursor.fetchall()
+# all_category = cursor.fetchall()
+
+print(all_product)
 def Exit():
     sure = messagebox.askyesno("Exit","Are you sure you want to exit?", parent=Main_Interface)
     if sure == True:

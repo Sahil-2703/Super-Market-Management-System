@@ -7,7 +7,7 @@ import datetime
 import sqlite3
 
 # Creating Mysql connection
-dbconn = sqlite3.connect("./Database/RSgroceries.db")
+dbconn = sqlite3.connect("./Database/groceries.db")
 
 
 # Create a cursor to give commands
@@ -15,24 +15,22 @@ cursor = dbconn.cursor()
 
 # Create Tables
 # category Table
-cursor.execute("""CREATE TABLE if not exists category(
-category varchar(100) NOT NULL primary key
-    )
-    """)
+# cursor.execute("""CREATE TABLE if not exists category(
+# category varchar(100) NOT NULL primary key
+#     )
+#     """)
+
+cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (CATEGORY VARCHAR(100) NOT NULL PRIMARY KEY)")
 dbconn.commit()
-cursor.execute("""CREATE TABLE if not exists products(
-    product_id int  not null primary key,
-    product_name varchar(100) not null,
-    product_rate int not null,
-    category varchar(100) not null references category(category)
-    )
-    """)
+
+
+cursor.execute("CREATE TABLE IF NOT EXISTS PRODUCT(PRODUCT_ID INT NOT NULL PRIMARY KEY, PRODUCT_NAME VARCHAR(100) NOT NULL, PRODUCT_RATE INT NOT NULL, CATEGORY VARCHAR(100) NOT NULL REFERENCES CATEGORY(CATEGORY))")
 dbconn.commit()
 
 
 
 cursor.execute("""
-Select * From category
+Select * From CATEGORY
 """)
 Category_1 = cursor.fetchall()
 
@@ -116,7 +114,7 @@ def sel_cat(n):
         Items_1.configure(values=Final_prod)
         Items_1.current(0)
 
-    cursor.execute("SELECT product_name, product_rate FROM products WHERE category='{}'".format(Items.get()))
+    cursor.execute("SELECT PRODUCT_NAME, PRODUCT_RATE FROM PRODUCT WHERE CATEGORY='{}'".format(Items.get()))
     prod_and_rate = cursor.fetchall()
     prods = ["Choose product"]
     rates = []
